@@ -4,46 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do List</title>
+
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+
+    <style>
+        #calendar-container {
+            width: 80%;  /* 달력 크기 조절 */
+            max-width: 900px;
+            height: 600px;  /* 높이 조절 */
+            margin: auto;  /* 가운데 정렬 */
+        }
+    </style>
 </head>
 <body>
     <h1>To-Do List</h1>
     <ul id="todo-list"></ul>
+
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
         <button type="submit">Add To-Do</button>
     </form>
+
+    <!-- 캘린더 컨테이너 -->
+    <h2>📅 Calendar</h2>
+    <div id="calendar-container"></div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
     <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var calendarEl = document.getElementById("calendar-container");
+
+            if (!window.FullCalendar) {
+                console.error("FullCalendar 라이브러리가 로드되지 않았습니다.");
+                return;
+            }
+
+            window.calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth",
+                height: '100%', // 부모 div 크기에 맞추기
+                contentHeight: 'auto'
+            });
+
+            calendar.render();
+        });
+
         async function fetchTodos() {
             const response = await fetch('/todos');
             const todos = await response.json();
+            
             const todoList = document.getElementById('todo-list');
             todoList.innerHTML = '';
+
             todos.forEach(todo => {
                 const li = document.createElement('li');
                 li.innerHTML = `${todo.title}: ${todo.description} (Completed: ${todo.completed})`;
-                
+
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
                 editButton.onclick = () => editTodo(todo);
-                
+
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Delete';
                 deleteButton.onclick = async () => {
                     await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
                     fetchTodos();
                 };
-                
+
                 li.appendChild(editButton);
                 li.appendChild(deleteButton);
                 todoList.appendChild(li);
             });
         }
-        
+
         async function editTodo(todo) {
             const newTitle = prompt('Edit Title:', todo.title);
             const newDescription = prompt('Edit Description:', todo.description);
             const newCompleted = confirm('Mark as completed?');
+
             if (newTitle !== null && newDescription !== null) {
                 await fetch(`/todos/${todo.id}`, {
                     method: 'PUT',
@@ -63,11 +104,13 @@
             event.preventDefault();
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
+
             await fetch('/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: Date.now(), title, description, completed: false })
             });
+
             fetchTodos();
         });
 
