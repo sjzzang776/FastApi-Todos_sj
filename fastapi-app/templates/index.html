@@ -24,6 +24,7 @@
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
+        <input type="date" id="due_date" required>  <!-- 날짜 선택 필드 추가 -->
         <button type="submit">Add To-Do</button>
     </form>
 
@@ -61,7 +62,7 @@
 
             todos.forEach(todo => {
                 const li = document.createElement('li');
-                li.innerHTML = `${todo.title}: ${todo.description} (Completed: ${todo.completed})`;
+                li.innerHTML = `${todo.title}: ${todo.description} (Completed: ${todo.completed}) - Due: ${todo.due_date || 'No deadline'}`;
 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Edit';
@@ -84,6 +85,7 @@
             const newTitle = prompt('Edit Title:', todo.title);
             const newDescription = prompt('Edit Description:', todo.description);
             const newCompleted = confirm('Mark as completed?');
+            const newDueDate = prompt('Edit Due Date (YYYY-MM-DD):', todo.due_date || '');
 
             if (newTitle !== null && newDescription !== null) {
                 await fetch(`/todos/${todo.id}`, {
@@ -93,7 +95,8 @@
                         id: todo.id,
                         title: newTitle,
                         description: newDescription,
-                        completed: newCompleted
+                        completed: newCompleted,
+                        due_date: newDueDate
                     })
                 });
                 fetchTodos();
@@ -104,11 +107,12 @@
             event.preventDefault();
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
+            const dueDate = document.getElementById('due_date').value;
 
             await fetch('/todos', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: Date.now(), title, description, completed: false })
+                body: JSON.stringify({ id: Date.now(), title, description, completed: false, due_date: dueDate })
             });
 
             fetchTodos();

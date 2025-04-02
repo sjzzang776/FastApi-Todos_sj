@@ -13,7 +13,7 @@ class TodoItem(BaseModel):
     title: str
     description: str
     completed: bool
-    date: Optional[str] = None
+    due_date: Optional[str] = None  # 마감 날짜 필드 추가
 
 # JSON 파일 경로
 TODO_FILE = "todo.json"
@@ -58,6 +58,6 @@ def delete_todo(todo_id: int):
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
-    with open("templates/index.html", "r",encoding="utf-8") as file:
+    with open("templates/index.html", "r", encoding="utf-8") as file:
         content = file.read()
     return HTMLResponse(content=content)
