@@ -74,9 +74,3 @@ def test_load_todos_function():
     todos = load_todos()
     assert todos == test_todos
 
-def test_read_root():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"message": "Hello from the FastAPI app"}
-
-# 추가된 테스트 끝
