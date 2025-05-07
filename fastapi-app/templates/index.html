@@ -24,7 +24,7 @@
     <form id="todo-form">
         <input type="text" id="title" placeholder="Title" required>
         <input type="text" id="description" placeholder="Description" required>
-        <input type="date" id="due_date" required>  <!-- 날짜 선택 필드 추가 -->
+        <input type="date" id="due_date">  <!-- 날짜 선택 필드 추가 -->
         <button type="submit">Add To-Do</button>
     </form>
 
@@ -119,7 +119,9 @@
             event.preventDefault();
             const title = document.getElementById('title').value;
             const description = document.getElementById('description').value;
-            const dueDate = document.getElementById('due_date').value;
+            const dueDateInput = document.getElementById('due_date').value;
+	    const dueDate = dueDateInput === '' ? null : dueDateInput;
+
 
             await fetch('/todos', {
                 method: 'POST',
