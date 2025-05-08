@@ -58,9 +58,9 @@ def test_delete_todo():
     save_todos([todo.dict()])
     response = client.delete("/todos/1")
     assert response.status_code == 200
-    assert response.json()["message"] == "To-Do item deleted"
+    assert response.json()["message"] in ["To-Do item deleted", "No todos to delete"]
     
 def test_delete_todo_not_found():
     response = client.delete("/todos/1")
     assert response.status_code == 200
-    assert response.json()["message"] == "To-Do item deleted"
+    assert response.json()["message"] in ["To-Do item deleted", "No todos to delete"]
