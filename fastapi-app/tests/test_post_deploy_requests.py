@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://3.34.126.54:8003"
+BASE_URL = "http://3.34.126.54:8002"
 TEST_ID = 9998  # 테스트용 고정 ID
 
 def test_create_todo():
