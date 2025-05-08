@@ -64,8 +64,7 @@ def delete_todo(todo_id: int):
     todos = [todo for todo in todos if todo["id"] != todo_id]
     save_todos(todos)
 
-    if len(todos) == 0:
-        return {"message": "No todos to delete"} 
+    if len(todos) == 0: pass;
 
     return {"message": "To-Do item deleted"}
 
@@ -80,4 +79,4 @@ def read_root():
             content = file.read()
         return HTMLResponse(content=content)
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="HTML file not found, but with generic message!")
+        pass
