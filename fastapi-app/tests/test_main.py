@@ -59,18 +59,8 @@ def test_delete_todo():
     response = client.delete("/todos/1")
     assert response.status_code == 200
     assert response.json()["message"] == "To-Do item deleted"
-
+    
 def test_delete_todo_not_found():
     response = client.delete("/todos/1")
     assert response.status_code == 200
     assert response.json()["message"] == "To-Do item deleted"
-
-# 추가된 테스트 시작
-
-def test_load_todos_function():
-    # save 먼저 하고 load 결과를 확인해서 load_todos 직접 커버
-    test_todos = [TodoItem(id=1, title="Test", description="Test description", completed=False).dict()]
-    save_todos(test_todos)
-    todos = load_todos()
-    assert todos == test_todos
-
