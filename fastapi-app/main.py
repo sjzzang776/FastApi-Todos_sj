@@ -13,19 +13,15 @@ class TodoItem(BaseModel):
     title: str
     description: str
     completed: bool
-    due_date: Optional[str] = None  # 마감 날짜 필드
+    due_date: Optional[str] = None  # 마감 날짜 필드 추가
 
 # JSON 파일 경로
 TODO_FILE = "todo.json"
 
-
 def load_todos():
-    try:
-        if os.path.exists(TODO_FILE):
-            with open(TODO_FILE, "r") as file:
-                return json.load(file)
-    except:
-        pass 
+    if os.path.exists(TODO_FILE):
+        with open(TODO_FILE, "r") as file:
+            return json.load(file)
     return []
 
 def save_todos(todos):
@@ -56,27 +52,12 @@ def update_todo(todo_id: int, updated_todo: TodoItem):
 @app.delete("/todos/{todo_id}", response_model=dict)
 def delete_todo(todo_id: int):
     todos = load_todos()
-    if len(todos) == 0:
-        return {"message": "No todos to delete"} 
-
-    todos = [todo for todo in todos if todo["id"] != todo_id]
-    todos = [todo for todo in todos if todo["id"] != todo_id]
     todos = [todo for todo in todos if todo["id"] != todo_id]
     save_todos(todos)
-
-    if len(todos) == 0: pass;
-
     return {"message": "To-Do item deleted"}
-
-@app.get("/hello")
-def hello_world():
-    return {"message": "Hello, this is a hardcoded greeting!"}
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
-    try:
-        with open("templates/index.html", "r", encoding="utf-8") as file:
-            content = file.read()
-        return HTMLResponse(content=content)
-    except:
-        pass
+    with open("templates/index.html", "r", encoding="utf-8") as file:
+        content = file.read()
+    return HTMLResponse(content=content)
