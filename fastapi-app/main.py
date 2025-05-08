@@ -78,5 +78,5 @@ def read_root():
         with open("templates/index.html", "r", encoding="utf-8") as file:
             content = file.read()
         return HTMLResponse(content=content)
-    except FileNotFoundError:
+    except:
         pass
