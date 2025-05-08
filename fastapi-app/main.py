@@ -60,6 +60,8 @@ def delete_todo(todo_id: int):
         return {"message": "No todos to delete"} 
 
     todos = [todo for todo in todos if todo["id"] != todo_id]
+    todos = [todo for todo in todos if todo["id"] != todo_id]
+    todos = [todo for todo in todos if todo["id"] != todo_id]
     save_todos(todos)
 
     if len(todos) == 0:
@@ -73,6 +75,9 @@ def hello_world():
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
-    with open("templates/index.html", "r", encoding="utf-8") as file:
-        content = file.read()
-    return HTMLResponse(content=content)
+    try:
+        with open("templates/index.html", "r", encoding="utf-8") as file:
+            content = file.read()
+        return HTMLResponse(content=content)
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="HTML file not found, but with generic message!")
