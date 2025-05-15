@@ -1,138 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>To-Do List</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do List</title>
 
-    <!-- FullCalendar CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-    <style>
-        #calendar-container {
-            width: 80%;  /* 달력 크기 조절 */
-            max-width: 900px;
-            height: 600px;  /* 높이 조절 */
-            margin: auto;  /* 가운데 정렬 */
-        }
-    </style>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    #todo-form {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 1rem 0 2rem;
+    }
+
+    #todo-form input, #todo-form button {
+      padding: 0.7rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    #todo-form input {
+      width: 200px;
+    }
+
+    #todo-form button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    #todo-form button:hover {
+      background-color: #2980b9;
+    }
+
+    #todo-list {
+      list-style-type: none;
+      padding: 0;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    #todo-list li {
+      background: white;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    #todo-list button {
+      padding: 0.4rem 0.6rem;
+      margin-right: 0.5rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    #todo-list button:nth-child(1) {
+      background-color: #f39c12;
+      color: white;
+    }
+
+    #todo-list button:nth-child(2) {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    #calendar-container {
+      width: 90%;
+      max-width: 900px;
+      margin: 2rem auto;
+      background-color: white;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
-    <h1>To-Do List</h1>
-    <ul id="todo-list"></ul>
+  <h1>📝 To-Do List</h1>
 
-    <form id="todo-form">
-        <input type="text" id="title" placeholder="Title" required>
-        <input type="text" id="description" placeholder="Description" required>
-        <input type="date" id="due_date">  <!-- 날짜 선택 필드 추가 -->
-        <button type="submit">Add To-Do</button>
-    </form>
+  <form id="todo-form">
+    <input type="text" id="title" placeholder="Title" required />
+    <input type="text" id="description" placeholder="Description" required />
+    <input type="date" id="due_date" />
+    <button type="submit">Add</button>
+  </form>
 
-    <!-- 캘린더 컨테이너 -->
-    <h2>📅 Calendar</h2>
-    <div id="calendar-container"></div>
+  <ul id="todo-list"></ul>
 
-    <!-- FullCalendar JS -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <h2>📅 Calendar</h2>
+  <div id="calendar-container"></div>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var calendarEl = document.getElementById("calendar-container");
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const calendarEl = document.getElementById("calendar-container");
+      if (!window.FullCalendar) return;
 
-            if (!window.FullCalendar) {
-                console.error("FullCalendar 라이브러리가 로드되지 않았습니다.");
-                return;
-            }
+      window.calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: "dayGridMonth",
+        height: '100%',
+        contentHeight: 'auto'
+      });
+      calendar.render();
+    });
 
-            window.calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: "dayGridMonth",
-                height: '100%', // 부모 div 크기에 맞추기
-                contentHeight: 'auto'
-            });
+    async function fetchTodos() {
+      const res = await fetch('/todos');
+      const todos = await res.json();
+      const todoList = document.getElementById('todo-list');
+      todoList.innerHTML = '';
+      window.calendar.removeAllEvents();
 
-            calendar.render();
-        });
+      todos.forEach(todo => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${todo.title}</strong>: ${todo.description}<br/>✅ Completed: ${todo.completed}<br/>📅 Due: ${todo.due_date || 'No deadline'}`;
 
-        async function fetchTodos() {
-            const response = await fetch('/todos');
-            const todos = await response.json();
-            
-            const todoList = document.getElementById('todo-list');
-            todoList.innerHTML = '';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => editTodo(todo);
 
-	    // 캘린더 이벤트 초기화
-            window.calendar.removeAllEvents();
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = async () => {
+          await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
+          fetchTodos();
+        };
 
-            todos.forEach(todo => {
-                const li = document.createElement('li');
-                li.innerHTML = `${todo.title}: ${todo.description} (Completed: ${todo.completed}) - Due: ${todo.due_date || 'No deadline'}`;
+        li.appendChild(editBtn);
+        li.appendChild(deleteBtn);
+        todoList.appendChild(li);
 
-                const editButton = document.createElement('button');
-                editButton.textContent = 'Edit';
-                editButton.onclick = () => editTodo(todo);
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Delete';
-                deleteButton.onclick = async () => {
-                    await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
-                    fetchTodos();
-                };
-
-                li.appendChild(editButton);
-                li.appendChild(deleteButton);
-                todoList.appendChild(li);
-
-		// ✅ 달력에 이벤트 추가
-                if (todo.due_date) {
-                    window.calendar.addEvent({
-                        title: todo.title,
-                        start: todo.due_date,
-                        allDay: true
-                    });
-                }
-            });
+        if (todo.due_date) {
+          window.calendar.addEvent({
+            title: todo.title,
+            start: todo.due_date,
+            allDay: true
+          });
         }
+      });
+    }
 
-        async function editTodo(todo) {
-            const newTitle = prompt('Edit Title:', todo.title);
-            const newDescription = prompt('Edit Description:', todo.description);
-            const newCompleted = confirm('Mark as completed?');
-            const newDueDate = prompt('Edit Due Date (YYYY-MM-DD):', todo.due_date || '');
+    async function editTodo(todo) {
+      const newTitle = prompt('Edit Title:', todo.title);
+      const newDescription = prompt('Edit Description:', todo.description);
+      const newCompleted = confirm('Mark as completed?');
+      const newDueDate = prompt('Edit Due Date (YYYY-MM-DD):', todo.due_date || '');
 
-            if (newTitle !== null && newDescription !== null) {
-                await fetch(`/todos/${todo.id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        id: todo.id,
-                        title: newTitle,
-                        description: newDescription,
-                        completed: newCompleted,
-                        due_date: newDueDate
-                    })
-                });
-                fetchTodos();
-            }
-        }
-
-        document.getElementById('todo-form').addEventListener('submit', async (event) => {
-            event.preventDefault();
-            const title = document.getElementById('title').value;
-            const description = document.getElementById('description').value;
-            const dueDateInput = document.getElementById('due_date').value;
-	    const dueDate = dueDateInput === '' ? null : dueDateInput;
-
-
-            await fetch('/todos', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: Date.now(), title, description, completed: false, due_date: dueDate })
-            });
-
-            fetchTodos();
+      if (newTitle !== null && newDescription !== null) {
+        await fetch(`/todos/${todo.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: todo.id,
+            title: newTitle,
+            description: newDescription,
+            completed: newCompleted,
+            due_date: newDueDate
+          })
         });
-
         fetchTodos();
-    </script>
+      }
+    }
+
+    document.getElementById('todo-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const dueDateInput = document.getElementById('due_date').value;
+      const dueDate = dueDateInput === '' ? null : dueDateInput;
+
+      await fetch('/todos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: Date.now(), title, description, completed: false, due_date: dueDate })
+      });
+
+      fetchTodos();
+    });
+
+    fetchTodos();
+  </script>
 </body>
 </html>
