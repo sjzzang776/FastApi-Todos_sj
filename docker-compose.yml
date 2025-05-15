@@ -51,6 +51,7 @@ services:
   cadvisor:
     image: google/cadvisor:latest
     container_name: cadvisor
+    platform: linux/amd64/v8
     ports:
       - "8081:8080"
 
