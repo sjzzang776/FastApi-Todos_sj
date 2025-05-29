@@ -139,21 +139,34 @@
 
       todos.forEach(todo => {
         const li = document.createElement('li');
-        li.innerHTML = `<strong>${todo.title}</strong>: ${todo.description}<br/>✅ Completed: ${todo.completed}<br/>📅 Due: ${todo.due_date || 'No deadline'}`;
+	const details = document.createElement('details');
+      	const summary = document.createElement('summary');
+      	summary.textContent = todo.title;
 
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Edit';
-        editBtn.onclick = () => editTodo(todo);
+      	const contentDiv = document.createElement('div');
+     	contentDiv.innerHTML = `
+        	✅ Completed: ${todo.completed}<br/>
+        	📅 Due: ${todo.due_date || 'No deadline'}
+    	  `;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.onclick = async () => {
-          await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
-          fetchTodos();
-        };
+      	const editBtn = document.createElement('button');
+     	editBtn.textContent = 'Edit';
+      	editBtn.onclick = () => editTodo(todo);
 
-        li.appendChild(editBtn);
-        li.appendChild(deleteBtn);
+      	const deleteBtn = document.createElement('button');
+      	deleteBtn.textContent = 'Delete';
+      	deleteBtn.onclick = async () => {
+        	await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
+        	fetchTodos();
+      	};
+
+      	contentDiv.appendChild(editBtn);
+      	contentDiv.appendChild(deleteBtn);
+
+      	details.appendChild(summary);
+      	details.appendChild(contentDiv);
+      	li.appendChild(details);
+        
         todoList.appendChild(li);
 
         if (todo.due_date) {
