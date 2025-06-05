@@ -53,22 +53,21 @@
       background-color: #2980b9;
     }
 
-    #todo-list {
+    #todo-list,
+    #completed-list {
       list-style-type: none;
       padding: 0;
       max-width: 600px;
-      margin: 0 auto;
+      margin: 0 auto 2rem;
     }
 
-    #todo-list li {
+    #todo-list li,
+    #completed-list li {
       background: white;
       margin-bottom: 1rem;
       padding: 1rem;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
     }
 
     #todo-list button {
@@ -116,6 +115,9 @@
   <h2>📅 Calendar</h2>
   <div id="calendar-container"></div>
 
+  <h2>✅ Completed Tasks</h2>
+  <ul id="completed-list"></ul>
+
   <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -134,39 +136,42 @@
       const res = await fetch('/todos');
       const todos = await res.json();
       const todoList = document.getElementById('todo-list');
+      const completedList = document.getElementById('completed-list');
+
       todoList.innerHTML = '';
+      completedList.innerHTML = '';
       window.calendar.removeAllEvents();
 
       todos.forEach(todo => {
         const li = document.createElement('li');
-	const details = document.createElement('details');
-      	const summary = document.createElement('summary');
-      	summary.textContent = todo.title;
+        const details = document.createElement('details');
+        const summary = document.createElement('summary');
+        summary.textContent = todo.title;
 
-      	const contentDiv = document.createElement('div');
-     	contentDiv.innerHTML = `
-        	✅ Completed: ${todo.completed}<br/>
-        	📅 Due: ${todo.due_date || 'No deadline'}
-    	  `;
+        const contentDiv = document.createElement('div');
+        contentDiv.innerHTML = `
+          ✅ Completed: ${todo.completed}<br/>
+          📅 Due: ${todo.due_date || 'No deadline'}
+        `;
 
-      	const editBtn = document.createElement('button');
-     	editBtn.textContent = 'Edit';
-      	editBtn.onclick = () => editTodo(todo);
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Edit';
+        editBtn.onclick = () => editTodo(todo);
 
-      	const deleteBtn = document.createElement('button');
-      	deleteBtn.textContent = 'Delete';
-      	deleteBtn.onclick = async () => {
-        	await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
-        	fetchTodos();
-      	};
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.onclick = async () => {
+          await fetch(`/todos/${todo.id}`, { method: 'DELETE' });
+          fetchTodos();
+        };
 
-      	contentDiv.appendChild(editBtn);
-      	contentDiv.appendChild(deleteBtn);
+        contentDiv.appendChild(editBtn);
+        contentDiv.appendChild(deleteBtn);
 
-      	details.appendChild(summary);
-      	details.appendChild(contentDiv);
-      	li.appendChild(details);
-        
+        details.appendChild(summary);
+        details.appendChild(contentDiv);
+        li.appendChild(details);
+
         todoList.appendChild(li);
 
         if (todo.due_date) {
@@ -176,6 +181,13 @@
             allDay: true
           });
         }
+      });
+
+      // 완료된 항목 따로 시각화
+      todos.filter(t => t.completed).forEach(todo => {
+        const li = document.createElement('li');
+        li.textContent = `${todo.title} (${todo.due_date || 'No deadline'})`;
+        completedList.appendChild(li);
       });
     }
 
